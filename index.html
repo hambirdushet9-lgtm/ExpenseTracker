@@ -4,209 +4,209 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Roommate Expense Tracker</title>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <style>
-    body {
-      background: #f5f7fb;
-    }
-
-    .card {
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.08);
-    }
-
-    .summary-card {
-      color: white;
-      border-radius: 15px;
-      padding: 20px;
-      height: 100%;
-    }
-
+    body { background: #f5f7fb; }
+    .card { border: none; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,.08); }
+    .summary-card { color: white; border-radius: 15px; padding: 20px; height: 100%; }
     .blue { background: #0d6efd; }
     .green { background: #198754; }
     .orange { background: #fd7e14; }
     .purple { background: #6f42c1; }
-
-    .table td,
-    .table th {
-      vertical-align: middle;
-    }
-
-    .navbar-brand {
-      font-weight: bold;
-    }
-
-    .table-responsive {
-      border-radius: 12px;
-      overflow-x: auto;
-    }
-
+    .table td, .table th { vertical-align: middle; }
+    .navbar-brand { font-weight: bold; }
+    .table-responsive { border-radius: 12px; overflow-x: auto; }
+    .hidden { display: none !important; }
     @media (max-width: 768px) {
-      .summary-card h2 {
-        font-size: 1.5rem;
-      }
+      .summary-card h2 { font-size: 1.5rem; }
     }
   </style>
 </head>
-
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
     <a class="navbar-brand" href="#">🏠 Roommate Expense Tracker</a>
+    <div class="ms-auto d-flex gap-2">
+      <span class="navbar-text text-white" id="sessionInfo"></span>
+      <button class="btn btn-outline-light btn-sm hidden" id="logoutBtn">Logout</button>
+    </div>
   </div>
 </nav>
 
 <div class="container py-4">
-  <div class="row g-3">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="summary-card blue">
-        <h6>Total Expense</h6>
-        <h2 id="totalExpense">₹0</h2>
-      </div>
-    </div>
 
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="summary-card green">
-        <h6>Your Spending</h6>
-        <h2 id="yourSpending">₹0</h2>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="summary-card orange">
-        <h6>Members</h6>
-        <h2 id="memberCount">5</h2>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="summary-card purple">
-        <h6>This Month</h6>
-        <h2 id="currentMonth">July</h2>
+  <!-- Login Section -->
+  <div class="row justify-content-center mb-4" id="loginSection">
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header bg-dark text-white">Login</div>
+        <div class="card-body">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" id="loginUsername" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" id="loginPassword" class="form-control" required>
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Login</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="row g-4 mt-1">
-    <div class="col-lg-4">
-      <div class="card">
-        <div class="card-header bg-primary text-white">Add Expense</div>
-        <div class="card-body">
-          <form id="expenseForm">
-            <input type="hidden" id="editIndex" value="-1">
-
-            <div class="mb-3">
-              <label class="form-label">Expense Name</label>
-              <input type="text" id="expenseName" class="form-control" placeholder="Milk" required>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Amount</label>
-              <input type="number" id="amount" class="form-control" placeholder="250" min="1" required>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Paid By</label>
-              <select id="paidBy" class="form-select" required>
-                <option value="Alankar">Alankar</option>
-                <option value="Om">Om</option>
-                <option value="Jayesh">Jayesh</option>
-                <option value="Vishal">Vishal</option>
-                <option value="Dushet">Dushet</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Category</label>
-              <select id="category" class="form-select" required>
-                <option value="Food">Food</option>
-                <option value="Rent">Rent</option>
-                <option value="Electricity">Electricity</option>
-                <option value="Internet">Internet</option>
-                <option value="Gas">Gas</option>
-                <option value="Water">Water</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Date</label>
-              <input type="date" id="date" class="form-control" required>
-            </div>
-
-            <button type="submit" class="btn btn-success w-100" id="submitBtn">Add Expense</button>
-            <button type="button" class="btn btn-secondary w-100 mt-2 d-none" id="cancelEditBtn">Cancel Edit</button>
-          </form>
+  <!-- App Section -->
+  <div id="appSection" class="hidden">
+    <div class="row g-3">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="summary-card blue">
+          <h6>Total Expense</h6>
+          <h2 id="totalExpense">₹0</h2>
         </div>
       </div>
-
-      <div class="card mt-3">
-        <div class="card-header bg-info text-white">Data Actions</div>
-        <div class="card-body d-grid gap-2">
-          <button class="btn btn-outline-danger" id="clearAllBtn">Clear All Data</button>
-          <button class="btn btn-outline-primary" id="exportJsonBtn">Download JSON</button>
-          <button class="btn btn-outline-success" id="exportCsvBtn">Download CSV</button>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="summary-card green">
+          <h6>Your Spending</h6>
+          <h2 id="yourSpending">₹0</h2>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="summary-card orange">
+          <h6>Members</h6>
+          <h2 id="memberCount">0</h2>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="summary-card purple">
+          <h6>This Month</h6>
+          <h2 id="currentMonth">July</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-lg-8">
-      <div class="card h-100">
-        <div class="card-header bg-success text-white">Expense History</div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-striped mb-0">
-              <thead>
-                <tr>
-                  <th>Expense</th>
-                  <th>Amount</th>
-                  <th>Paid By</th>
-                  <th>Category</th>
-                  <th>Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="expenseTableBody"></tbody>
-            </table>
+    <div class="row g-4 mt-1">
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">Add Expense</div>
+          <div class="card-body">
+            <form id="expenseForm">
+              <input type="hidden" id="editIndex" value="-1">
+              <div class="mb-3">
+                <label class="form-label">Expense Name</label>
+                <input type="text" id="expenseName" class="form-control" placeholder="Milk" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Amount</label>
+                <input type="number" id="amount" class="form-control" placeholder="250" min="1" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Paid By</label>
+                <select id="paidBy" class="form-select" required></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select id="category" class="form-select" required>
+                  <option value="Food">Food</option>
+                  <option value="Rent">Rent</option>
+                  <option value="Electricity">Electricity</option>
+                  <option value="Internet">Internet</option>
+                  <option value="Gas">Gas</option>
+                  <option value="Water">Water</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="date" id="date" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-success w-100" id="submitBtn">Add Expense</button>
+              <button type="button" class="btn btn-secondary w-100 mt-2 hidden" id="cancelEditBtn">Cancel Edit</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header bg-info text-white">Data Actions</div>
+          <div class="card-body d-grid gap-2">
+            <button class="btn btn-outline-danger" id="clearAllBtn">Clear All Data</button>
+            <button class="btn btn-outline-primary" id="exportJsonBtn">Download JSON</button>
+            <button class="btn btn-outline-success" id="exportCsvBtn">Download CSV</button>
+          </div>
+        </div>
+
+        <div class="card mt-3" id="adminCard">
+          <div class="card-header bg-warning">Admin - Add User</div>
+          <div class="card-body">
+            <form id="userForm">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" id="userName" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" id="userUsername" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" id="userPassword" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-warning w-100">Add User</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">Expense History</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th>Expense</th>
+                    <th>Amount</th>
+                    <th>Paid By</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="expenseTableBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="row g-4 mt-1">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-warning">Roommates</div>
-        <div class="card-body">
-          <ul class="list-group" id="roommatesList">
-            <li class="list-group-item">Alankar</li>
-            <li class="list-group-item">Om</li>
-            <li class="list-group-item">Jayesh</li>
-            <li class="list-group-item">Vishal</li>
-            <li class="list-group-item">Dushet</li>
-          </ul>
+    <div class="row g-4 mt-1">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-warning">Roommates</div>
+          <div class="card-body">
+            <ul class="list-group" id="roommatesList"></ul>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-danger text-white">Monthly Settlement</div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th>Person</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="settlementBody"></tbody>
-            </table>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">Monthly Settlement</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>Person</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="settlementBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -217,8 +217,20 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const roommates = ["Alankar", "Om", "Jayesh", "Vishal", "Dushet"];
-  const STORAGE_KEY = "roommate-expenses";
+  const STORAGE_EXPENSES = "roommate-expenses";
+  const STORAGE_USERS = "roommate-users";
+  const STORAGE_SESSION = "roommate-session";
+
+  const adminUser = { username: "admin", password: "admin123", role: "admin", name: "Admin" };
+
+  const defaultUsers = [
+    adminUser,
+    { name: "Alankar", username: "alankar", password: "1111", role: "user" },
+    { name: "Om", username: "om", password: "2222", role: "user" },
+    { name: "Jayesh", username: "jayesh", password: "3333", role: "user" },
+    { name: "Vishal", username: "vishal", password: "4444", role: "user" },
+    { name: "Dushet", username: "dushet", password: "5555", role: "user" }
+  ];
 
   const defaultExpenses = [
     { name: "Milk", amount: 60, paidBy: "Alankar", category: "Food", date: "2026-07-17" },
@@ -227,61 +239,101 @@
     { name: "Gas", amount: 1200, paidBy: "Vishal", category: "Gas", date: "2026-07-25" }
   ];
 
-  function loadExpenses() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return defaultExpenses;
+  function loadData(key, fallback) {
+    const saved = localStorage.getItem(key);
+    if (!saved) return fallback;
     try {
       const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : defaultExpenses;
+      return parsed ?? fallback;
     } catch {
-      return defaultExpenses;
+      return fallback;
     }
   }
 
-  function saveExpenses() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-  }
+  let users = loadData(STORAGE_USERS, defaultUsers);
+  let expenses = loadData(STORAGE_EXPENSES, defaultExpenses);
+  let session = loadData(STORAGE_SESSION, null);
 
-  let expenses = loadExpenses();
+  const appSection = document.getElementById("appSection");
+  const loginSection = document.getElementById("loginSection");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const sessionInfo = document.getElementById("sessionInfo");
+  const adminCard = document.getElementById("adminCard");
 
+  const loginForm = document.getElementById("loginForm");
+  const loginUsername = document.getElementById("loginUsername");
+  const loginPassword = document.getElementById("loginPassword");
+
+  const userForm = document.getElementById("userForm");
+  const userName = document.getElementById("userName");
+  const userUsername = document.getElementById("userUsername");
+  const userPassword = document.getElementById("userPassword");
+
+  const roommatesList = document.getElementById("roommatesList");
+  const paidByEl = document.getElementById("paidBy");
   const expenseForm = document.getElementById("expenseForm");
   const expenseTableBody = document.getElementById("expenseTableBody");
   const settlementBody = document.getElementById("settlementBody");
-
   const totalExpenseEl = document.getElementById("totalExpense");
   const yourSpendingEl = document.getElementById("yourSpending");
   const memberCountEl = document.getElementById("memberCount");
   const currentMonthEl = document.getElementById("currentMonth");
-
   const expenseNameEl = document.getElementById("expenseName");
   const amountEl = document.getElementById("amount");
-  const paidByEl = document.getElementById("paidBy");
   const categoryEl = document.getElementById("category");
   const dateEl = document.getElementById("date");
   const editIndexEl = document.getElementById("editIndex");
-
   const submitBtn = document.getElementById("submitBtn");
   const cancelEditBtn = document.getElementById("cancelEditBtn");
   const clearAllBtn = document.getElementById("clearAllBtn");
   const exportJsonBtn = document.getElementById("exportJsonBtn");
   const exportCsvBtn = document.getElementById("exportCsvBtn");
 
-  memberCountEl.textContent = roommates.length;
-  currentMonthEl.textContent = new Date().toLocaleString("default", { month: "long" });
-  dateEl.value = new Date().toISOString().split("T")[0];
-
-  function formatDate(dateStr) {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  function saveData() {
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    localStorage.setItem(STORAGE_EXPENSES, JSON.stringify(expenses));
+    localStorage.setItem(STORAGE_SESSION, JSON.stringify(session));
   }
 
   function currency(amount) {
     return "₹" + Number(amount).toLocaleString("en-IN");
   }
 
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  }
+
+  function visibleUsers() {
+    return users.filter(u => u.role !== "admin");
+  }
+
+  function populatePaidBy() {
+    paidByEl.innerHTML = "";
+    visibleUsers().forEach(user => {
+      const option = document.createElement("option");
+      option.value = user.name;
+      option.textContent = user.name;
+      paidByEl.appendChild(option);
+    });
+  }
+
+  function renderRoommates() {
+    roommatesList.innerHTML = "";
+    visibleUsers().forEach(user => {
+      const li = document.createElement("li");
+      li.className = "list-group-item d-flex justify-content-between align-items-center";
+      li.innerHTML = `
+        <span>${user.name}</span>
+        ${session && session.role === "admin" ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.username}')">Delete</button>` : ""}
+      `;
+      roommatesList.appendChild(li);
+    });
+    memberCountEl.textContent = visibleUsers().length;
+  }
+
   function renderExpenses() {
     expenseTableBody.innerHTML = "";
-
     expenses.forEach((expense, index) => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -303,7 +355,7 @@
     const total = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
     totalExpenseEl.textContent = currency(total);
 
-    const yourName = "Alankar";
+    const yourName = session?.name || "";
     const yourTotal = expenses
       .filter(exp => exp.paidBy === yourName)
       .reduce((sum, exp) => sum + Number(exp.amount), 0);
@@ -313,10 +365,11 @@
 
   function renderSettlement() {
     const total = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
-    const perPerson = total / roommates.length;
+    const people = visibleUsers();
+    const perPerson = people.length ? total / people.length : 0;
 
     const paidMap = {};
-    roommates.forEach(name => paidMap[name] = 0);
+    people.forEach(user => paidMap[user.name] = 0);
 
     expenses.forEach(exp => {
       if (paidMap[exp.paidBy] !== undefined) {
@@ -325,15 +378,14 @@
     });
 
     settlementBody.innerHTML = "";
-
-    roommates.forEach(name => {
-      const balance = paidMap[name] - perPerson;
+    people.forEach(user => {
+      const balance = paidMap[user.name] - perPerson;
       const isPositive = balance >= 0;
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${name}</td>
-        <td class="${isPositive ? 'text-success' : 'text-danger'}">
-          ${isPositive ? 'Gets ' : 'Pays '}${currency(Math.abs(balance))}
+        <td>${user.name}</td>
+        <td class="${isPositive ? "text-success" : "text-danger"}">
+          ${isPositive ? "Gets " : "Pays "}${currency(Math.abs(balance))}
         </td>
       `;
       settlementBody.appendChild(row);
@@ -341,13 +393,93 @@
   }
 
   function renderAll() {
+    populatePaidBy();
+    renderRoommates();
     renderExpenses();
     renderSummary();
     renderSettlement();
+    currentMonthEl.textContent = new Date().toLocaleString("default", { month: "long" });
+    sessionInfo.textContent = session ? `Logged in as ${session.name} (${session.role})` : "";
+    logoutBtn.classList.toggle("hidden", !session);
+    adminCard.classList.toggle("hidden", !(session && session.role === "admin"));
+    appSection.classList.toggle("hidden", !session);
+    loginSection.classList.toggle("hidden", !!session);
+  }
+
+  function resetExpenseForm() {
+    expenseForm.reset();
+    editIndexEl.value = "-1";
+    submitBtn.textContent = "Add Expense";
+    cancelEditBtn.classList.add("hidden");
+    dateEl.value = new Date().toISOString().split("T")[0];
+  }
+
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+
+    const found = users.find(u => u.username === username && u.password === password);
+    if (!found) {
+      alert("Invalid username or password");
+      return;
+    }
+
+    session = { name: found.name, username: found.username, role: found.role };
+    saveData();
+    loginForm.reset();
+    renderAll();
+  });
+
+  logoutBtn.addEventListener("click", function () {
+    session = null;
+    saveData();
+    renderAll();
+  });
+
+  userForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!session || session.role !== "admin") {
+      alert("Only admin can add users");
+      return;
+    }
+
+    const name = userName.value.trim();
+    const username = userUsername.value.trim();
+    const password = userPassword.value.trim();
+
+    if (!name || !username || !password) {
+      alert("Fill all user fields");
+      return;
+    }
+
+    if (users.some(u => u.username === username)) {
+      alert("Username already exists");
+      return;
+    }
+
+    users.push({ name, username, password, role: "user" });
+    saveData();
+    userForm.reset();
+    renderAll();
+  });
+
+  function deleteUser(username) {
+    if (!session || session.role !== "admin") return;
+    if (!confirm("Delete this user?")) return;
+    users = users.filter(u => u.username !== username && u.role === "admin" ? true : true);
+    users = users.filter(u => u.username !== username || u.role === "admin");
+    expenses = expenses.filter(exp => visibleUsers().some(u => u.name === exp.paidBy) || true);
+    saveData();
+    renderAll();
   }
 
   expenseForm.addEventListener("submit", function (e) {
     e.preventDefault();
+    if (!session) {
+      alert("Please login first");
+      return;
+    }
 
     const name = expenseNameEl.value.trim();
     const amount = Number(amountEl.value);
@@ -369,19 +501,10 @@
       expenses.unshift(item);
     }
 
-    saveExpenses();
-    resetForm();
+    saveData();
+    resetExpenseForm();
     renderAll();
   });
-
-  function resetForm() {
-    expenseForm.reset();
-    editIndexEl.value = "-1";
-    submitBtn.textContent = "Add Expense";
-    cancelEditBtn.classList.add("d-none");
-    dateEl.value = new Date().toISOString().split("T")[0];
-    expenseNameEl.focus();
-  }
 
   function editExpense(index) {
     const exp = expenses[index];
@@ -392,32 +515,36 @@
     dateEl.value = exp.date;
     editIndexEl.value = index;
     submitBtn.textContent = "Update Expense";
-    cancelEditBtn.classList.remove("d-none");
+    cancelEditBtn.classList.remove("hidden");
     expenseNameEl.focus();
   }
 
   function deleteExpense(index) {
     if (!confirm("Delete this expense?")) return;
     expenses.splice(index, 1);
-    saveExpenses();
+    saveData();
     renderAll();
-    if (Number(editIndexEl.value) === index) resetForm();
+    if (Number(editIndexEl.value) === index) resetExpenseForm();
   }
 
   function clearAllData() {
-    if (!confirm("Are you sure you want to clear all saved expenses?")) return;
+    if (!confirm("Clear all users and expenses?")) return;
+    users = defaultUsers;
     expenses = [];
-    localStorage.removeItem(STORAGE_KEY);
-    resetForm();
+    session = null;
+    localStorage.removeItem(STORAGE_USERS);
+    localStorage.removeItem(STORAGE_EXPENSES);
+    localStorage.removeItem(STORAGE_SESSION);
     renderAll();
   }
 
   function exportJSON() {
-    const blob = new Blob([JSON.stringify(expenses, null, 2)], { type: "application/json" });
+    const data = { users, expenses };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "roommate-expenses.json";
+    a.download = "roommate-data.json";
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -447,14 +574,16 @@
     URL.revokeObjectURL(url);
   }
 
-  cancelEditBtn.addEventListener("click", resetForm);
+  cancelEditBtn.addEventListener("click", resetExpenseForm);
   clearAllBtn.addEventListener("click", clearAllData);
   exportJsonBtn.addEventListener("click", exportJSON);
   exportCsvBtn.addEventListener("click", exportCSV);
 
-  window.deleteExpense = deleteExpense;
   window.editExpense = editExpense;
+  window.deleteExpense = deleteExpense;
+  window.deleteUser = deleteUser;
 
+  dateEl.value = new Date().toISOString().split("T")[0];
   renderAll();
 </script>
 
