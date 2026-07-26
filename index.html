@@ -79,7 +79,7 @@
     <div class="col-12 col-sm-6 col-lg-3">
       <div class="summary-card orange">
         <h6>Members</h6>
-        <h2 id="memberCount">4</h2>
+        <h2 id="memberCount">5</h2>
       </div>
     </div>
 
@@ -97,6 +97,8 @@
         <div class="card-header bg-primary text-white">Add Expense</div>
         <div class="card-body">
           <form id="expenseForm">
+            <input type="hidden" id="editIndex" value="-1">
+
             <div class="mb-3">
               <label class="form-label">Expense Name</label>
               <input type="text" id="expenseName" class="form-control" placeholder="Milk" required>
@@ -110,11 +112,11 @@
             <div class="mb-3">
               <label class="form-label">Paid By</label>
               <select id="paidBy" class="form-select" required>
-                <option value="Rahul">Alankar</option>
-                <option value="Akash">Om</option>
-                <option value="John">Jayesh</option>
-                <option value="Priya">Vishal</option>
-                  <option value="Priya">Dushet</option>
+                <option value="Alankar">Alankar</option>
+                <option value="Om">Om</option>
+                <option value="Jayesh">Jayesh</option>
+                <option value="Vishal">Vishal</option>
+                <option value="Dushet">Dushet</option>
               </select>
             </div>
 
@@ -135,8 +137,18 @@
               <input type="date" id="date" class="form-control" required>
             </div>
 
-            <button type="submit" class="btn btn-success w-100">Add Expense</button>
+            <button type="submit" class="btn btn-success w-100" id="submitBtn">Add Expense</button>
+            <button type="button" class="btn btn-secondary w-100 mt-2 d-none" id="cancelEditBtn">Cancel Edit</button>
           </form>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-header bg-info text-white">Data Actions</div>
+        <div class="card-body d-grid gap-2">
+          <button class="btn btn-outline-danger" id="clearAllBtn">Clear All Data</button>
+          <button class="btn btn-outline-primary" id="exportJsonBtn">Download JSON</button>
+          <button class="btn btn-outline-success" id="exportCsvBtn">Download CSV</button>
         </div>
       </div>
     </div>
@@ -175,7 +187,7 @@
             <li class="list-group-item">Om</li>
             <li class="list-group-item">Jayesh</li>
             <li class="list-group-item">Vishal</li>
-              <li class="list-group-item">Dushet</li>
+            <li class="list-group-item">Dushet</li>
           </ul>
         </div>
       </div>
@@ -205,14 +217,32 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const roommates = ["Alankar", "Om", "Jayesh", "Vishal","Dushet"];
+  const roommates = ["Alankar", "Om", "Jayesh", "Vishal", "Dushet"];
+  const STORAGE_KEY = "roommate-expenses";
 
-  let expenses = [
-    { name: "Milk", amount: 60, paidBy: "Rahul", category: "Food", date: "2026-07-17" },
-    { name: "Internet", amount: 999, paidBy: "Akash", category: "Internet", date: "2026-07-18" },
-    { name: "Electricity", amount: 1700, paidBy: "Priya", category: "Electricity", date: "2026-07-20" },
-    { name: "Gas", amount: 1200, paidBy: "John", category: "Gas", date: "2026-07-25" }
+  const defaultExpenses = [
+    { name: "Milk", amount: 60, paidBy: "Alankar", category: "Food", date: "2026-07-17" },
+    { name: "Internet", amount: 999, paidBy: "Om", category: "Internet", date: "2026-07-18" },
+    { name: "Electricity", amount: 1700, paidBy: "Jayesh", category: "Electricity", date: "2026-07-20" },
+    { name: "Gas", amount: 1200, paidBy: "Vishal", category: "Gas", date: "2026-07-25" }
   ];
+
+  function loadExpenses() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return defaultExpenses;
+    try {
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : defaultExpenses;
+    } catch {
+      return defaultExpenses;
+    }
+  }
+
+  function saveExpenses() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+  }
+
+  let expenses = loadExpenses();
 
   const expenseForm = document.getElementById("expenseForm");
   const expenseTableBody = document.getElementById("expenseTableBody");
@@ -228,6 +258,13 @@
   const paidByEl = document.getElementById("paidBy");
   const categoryEl = document.getElementById("category");
   const dateEl = document.getElementById("date");
+  const editIndexEl = document.getElementById("editIndex");
+
+  const submitBtn = document.getElementById("submitBtn");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+  const clearAllBtn = document.getElementById("clearAllBtn");
+  const exportJsonBtn = document.getElementById("exportJsonBtn");
+  const exportCsvBtn = document.getElementById("exportCsvBtn");
 
   memberCountEl.textContent = roommates.length;
   currentMonthEl.textContent = new Date().toLocaleString("default", { month: "long" });
@@ -254,9 +291,8 @@
         <td>${expense.category}</td>
         <td>${formatDate(expense.date)}</td>
         <td>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${index})">
-            Delete
-          </button>
+          <button class="btn btn-sm btn-outline-primary me-1" onclick="editExpense(${index})">Edit</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${index})">Delete</button>
         </td>
       `;
       expenseTableBody.appendChild(row);
@@ -267,7 +303,7 @@
     const total = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
     totalExpenseEl.textContent = currency(total);
 
-    const yourName = "Rahul";
+    const yourName = "Alankar";
     const yourTotal = expenses
       .filter(exp => exp.paidBy === yourName)
       .reduce((sum, exp) => sum + Number(exp.amount), 0);
@@ -281,8 +317,11 @@
 
     const paidMap = {};
     roommates.forEach(name => paidMap[name] = 0);
+
     expenses.forEach(exp => {
-      paidMap[exp.paidBy] += Number(exp.amount);
+      if (paidMap[exp.paidBy] !== undefined) {
+        paidMap[exp.paidBy] += Number(exp.amount);
+      }
     });
 
     settlementBody.innerHTML = "";
@@ -315,27 +354,106 @@
     const paidBy = paidByEl.value;
     const category = categoryEl.value;
     const date = dateEl.value;
+    const editIndex = Number(editIndexEl.value);
 
     if (!name || !amount || amount <= 0 || !date) {
       alert("Please fill all fields correctly.");
       return;
     }
 
-    expenses.unshift({ name, amount, paidBy, category, date });
+    const item = { name, amount, paidBy, category, date };
 
-    expenseForm.reset();
-    dateEl.value = new Date().toISOString().split("T")[0];
-    expenseNameEl.focus();
+    if (editIndex >= 0) {
+      expenses[editIndex] = item;
+    } else {
+      expenses.unshift(item);
+    }
 
+    saveExpenses();
+    resetForm();
     renderAll();
   });
 
+  function resetForm() {
+    expenseForm.reset();
+    editIndexEl.value = "-1";
+    submitBtn.textContent = "Add Expense";
+    cancelEditBtn.classList.add("d-none");
+    dateEl.value = new Date().toISOString().split("T")[0];
+    expenseNameEl.focus();
+  }
+
+  function editExpense(index) {
+    const exp = expenses[index];
+    expenseNameEl.value = exp.name;
+    amountEl.value = exp.amount;
+    paidByEl.value = exp.paidBy;
+    categoryEl.value = exp.category;
+    dateEl.value = exp.date;
+    editIndexEl.value = index;
+    submitBtn.textContent = "Update Expense";
+    cancelEditBtn.classList.remove("d-none");
+    expenseNameEl.focus();
+  }
+
   function deleteExpense(index) {
+    if (!confirm("Delete this expense?")) return;
     expenses.splice(index, 1);
+    saveExpenses();
+    renderAll();
+    if (Number(editIndexEl.value) === index) resetForm();
+  }
+
+  function clearAllData() {
+    if (!confirm("Are you sure you want to clear all saved expenses?")) return;
+    expenses = [];
+    localStorage.removeItem(STORAGE_KEY);
+    resetForm();
     renderAll();
   }
 
+  function exportJSON() {
+    const blob = new Blob([JSON.stringify(expenses, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "roommate-expenses.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function escapeCSV(value) {
+    return `"${String(value).replace(/"/g, '""')}"`;
+  }
+
+  function exportCSV() {
+    let csv = "Expense,Amount,Paid By,Category,Date\n";
+    expenses.forEach(exp => {
+      csv += [
+        escapeCSV(exp.name),
+        escapeCSV(exp.amount),
+        escapeCSV(exp.paidBy),
+        escapeCSV(exp.category),
+        escapeCSV(exp.date)
+      ].join(",") + "\n";
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "roommate-expenses.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  cancelEditBtn.addEventListener("click", resetForm);
+  clearAllBtn.addEventListener("click", clearAllData);
+  exportJsonBtn.addEventListener("click", exportJSON);
+  exportCsvBtn.addEventListener("click", exportCSV);
+
   window.deleteExpense = deleteExpense;
+  window.editExpense = editExpense;
 
   renderAll();
 </script>
