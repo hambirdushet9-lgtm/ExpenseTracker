@@ -27,7 +27,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
     <a class="navbar-brand" href="#">🏠 Roommate Expense Tracker</a>
-    <div class="ms-auto d-flex gap-2">
+    <div class="ms-auto d-flex gap-2 align-items-center">
       <span class="navbar-text text-white" id="sessionInfo"></span>
       <button class="btn btn-outline-light btn-sm hidden" id="logoutBtn">Logout</button>
     </div>
@@ -36,7 +36,6 @@
 
 <div class="container py-4">
 
-  <!-- Login Section -->
   <div class="row justify-content-center mb-4" id="loginSection">
     <div class="col-lg-5">
       <div class="card">
@@ -58,7 +57,6 @@
     </div>
   </div>
 
-  <!-- App Section -->
   <div id="appSection" class="hidden">
     <div class="row g-3">
       <div class="col-12 col-sm-6 col-lg-3">
@@ -94,18 +92,22 @@
           <div class="card-body">
             <form id="expenseForm">
               <input type="hidden" id="editIndex" value="-1">
+
               <div class="mb-3">
                 <label class="form-label">Expense Name</label>
                 <input type="text" id="expenseName" class="form-control" placeholder="Milk" required>
               </div>
+
               <div class="mb-3">
                 <label class="form-label">Amount</label>
                 <input type="number" id="amount" class="form-control" placeholder="250" min="1" required>
               </div>
+
               <div class="mb-3">
                 <label class="form-label">Paid By</label>
                 <select id="paidBy" class="form-select" required></select>
               </div>
+
               <div class="mb-3">
                 <label class="form-label">Category</label>
                 <select id="category" class="form-select" required>
@@ -117,10 +119,12 @@
                   <option value="Water">Water</option>
                 </select>
               </div>
+
               <div class="mb-3">
                 <label class="form-label">Date</label>
                 <input type="date" id="date" class="form-control" required>
               </div>
+
               <button type="submit" class="btn btn-success w-100" id="submitBtn">Add Expense</button>
               <button type="button" class="btn btn-secondary w-100 mt-2 hidden" id="cancelEditBtn">Cancel Edit</button>
             </form>
@@ -153,6 +157,27 @@
                 <input type="password" id="userPassword" class="form-control" required>
               </div>
               <button type="submit" class="btn btn-warning w-100">Add User</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card mt-3" id="changePassCard">
+          <div class="card-header bg-secondary text-white">Change Password</div>
+          <div class="card-body">
+            <form id="changePasswordForm">
+              <div class="mb-3">
+                <label class="form-label">Current Password</label>
+                <input type="password" id="currentPassword" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">New Password</label>
+                <input type="password" id="newPassword" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmNewPassword" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-secondary w-100">Update Password</button>
             </form>
           </div>
         </div>
@@ -242,12 +267,7 @@
   function loadData(key, fallback) {
     const saved = localStorage.getItem(key);
     if (!saved) return fallback;
-    try {
-      const parsed = JSON.parse(saved);
-      return parsed ?? fallback;
-    } catch {
-      return fallback;
-    }
+    try { return JSON.parse(saved); } catch { return fallback; }
   }
 
   let users = loadData(STORAGE_USERS, defaultUsers);
@@ -259,6 +279,7 @@
   const logoutBtn = document.getElementById("logoutBtn");
   const sessionInfo = document.getElementById("sessionInfo");
   const adminCard = document.getElementById("adminCard");
+  const changePassCard = document.getElementById("changePassCard");
 
   const loginForm = document.getElementById("loginForm");
   const loginUsername = document.getElementById("loginUsername");
@@ -268,6 +289,11 @@
   const userName = document.getElementById("userName");
   const userUsername = document.getElementById("userUsername");
   const userPassword = document.getElementById("userPassword");
+
+  const changePasswordForm = document.getElementById("changePasswordForm");
+  const currentPassword = document.getElementById("currentPassword");
+  const newPassword = document.getElementById("newPassword");
+  const confirmNewPassword = document.getElementById("confirmNewPassword");
 
   const roommatesList = document.getElementById("roommatesList");
   const paidByEl = document.getElementById("paidBy");
@@ -372,9 +398,7 @@
     people.forEach(user => paidMap[user.name] = 0);
 
     expenses.forEach(exp => {
-      if (paidMap[exp.paidBy] !== undefined) {
-        paidMap[exp.paidBy] += Number(exp.amount);
-      }
+      if (paidMap[exp.paidBy] !== undefined) paidMap[exp.paidBy] += Number(exp.amount);
     });
 
     settlementBody.innerHTML = "";
@@ -402,6 +426,7 @@
     sessionInfo.textContent = session ? `Logged in as ${session.name} (${session.role})` : "";
     logoutBtn.classList.toggle("hidden", !session);
     adminCard.classList.toggle("hidden", !(session && session.role === "admin"));
+    changePassCard.classList.toggle("hidden", !session);
     appSection.classList.toggle("hidden", !session);
     loginSection.classList.toggle("hidden", !!session);
   }
@@ -418,8 +443,8 @@
     e.preventDefault();
     const username = loginUsername.value.trim();
     const password = loginPassword.value.trim();
-
     const found = users.find(u => u.username === username && u.password === password);
+
     if (!found) {
       alert("Invalid username or password");
       return;
@@ -439,24 +464,14 @@
 
   userForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    if (!session || session.role !== "admin") {
-      alert("Only admin can add users");
-      return;
-    }
+    if (!session || session.role !== "admin") return alert("Only admin can add users");
 
     const name = userName.value.trim();
     const username = userUsername.value.trim();
     const password = userPassword.value.trim();
 
-    if (!name || !username || !password) {
-      alert("Fill all user fields");
-      return;
-    }
-
-    if (users.some(u => u.username === username)) {
-      alert("Username already exists");
-      return;
-    }
+    if (!name || !username || !password) return alert("Fill all user fields");
+    if (users.some(u => u.username === username)) return alert("Username already exists");
 
     users.push({ name, username, password, role: "user" });
     saveData();
@@ -464,46 +479,30 @@
     renderAll();
   });
 
-  function deleteUser(username) {
-    if (!session || session.role !== "admin") return;
-    if (!confirm("Delete this user?")) return;
-    users = users.filter(u => u.username !== username && u.role === "admin" ? true : true);
-    users = users.filter(u => u.username !== username || u.role === "admin");
-    expenses = expenses.filter(exp => visibleUsers().some(u => u.name === exp.paidBy) || true);
-    saveData();
-    renderAll();
-  }
-
-  expenseForm.addEventListener("submit", function (e) {
+  changePasswordForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    if (!session) {
-      alert("Please login first");
-      return;
-    }
+    if (!session) return alert("Please login first");
 
-    const name = expenseNameEl.value.trim();
-    const amount = Number(amountEl.value);
-    const paidBy = paidByEl.value;
-    const category = categoryEl.value;
-    const date = dateEl.value;
-    const editIndex = Number(editIndexEl.value);
+    const curr = currentPassword.value.trim();
+    const next = newPassword.value.trim();
+    const confirm = confirmNewPassword.value.trim();
 
-    if (!name || !amount || amount <= 0 || !date) {
-      alert("Please fill all fields correctly.");
-      return;
-    }
+    if (!curr || !next || !confirm) return alert("Fill all password fields");
+    if (next !== confirm) return alert("New password and confirm password do not match");
 
-    const item = { name, amount, paidBy, category, date };
+    const userIndex = users.findIndex(u => u.username === session.username);
+    if (userIndex === -1) return alert("User not found");
+    if (users[userIndex].password !== curr) return alert("Current password is wrong");
 
-    if (editIndex >= 0) {
-      expenses[editIndex] = item;
-    } else {
-      expenses.unshift(item);
+    users[userIndex].password = next;
+
+    if (session.role === "admin") {
+      session = { ...session };
     }
 
     saveData();
-    resetExpenseForm();
-    renderAll();
+    changePasswordForm.reset();
+    alert("Password updated successfully");
   });
 
   function editExpense(index) {
@@ -581,7 +580,6 @@
 
   window.editExpense = editExpense;
   window.deleteExpense = deleteExpense;
-  window.deleteUser = deleteUser;
 
   dateEl.value = new Date().toISOString().split("T")[0];
   renderAll();
