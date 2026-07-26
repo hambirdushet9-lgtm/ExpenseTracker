@@ -1,401 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roommate Expense Tracker</title>
- 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
- 
-    <style>
-        body{
-            background:#f5f7fb;
-        }
- 
-        .card{
-            border:none;
-            border-radius:15px;
-            box-shadow:0 10px 25px rgba(0,0,0,.08);
-        }
- 
-        .summary-card{
-            color:white;
-            border-radius:15px;
-            padding:20px;
-        }
- 
-        .blue{
-            background:#0d6efd;
-        }
- 
-        .green{
-            background:#198754;
-        }
- 
-        .orange{
-            background:#fd7e14;
-        }
- 
-        .purple{
-            background:#6f42c1;
-        }
- 
-        .table td,
-        .table th{
-            vertical-align:middle;
-        }
- 
-        .navbar-brand{
-            font-weight:bold;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roommate Expense Tracker</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f5f7fb;
+    }
+
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    }
+
+    .summary-card {
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      height: 100%;
+    }
+
+    .blue { background: #0d6efd; }
+    .green { background: #198754; }
+    .orange { background: #fd7e14; }
+    .purple { background: #6f42c1; }
+
+    .table td,
+    .table th {
+      vertical-align: middle;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+    }
+
+    .table-responsive {
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 768px) {
+      .summary-card h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
- 
+
 <body>
- 
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-<div class="container">
- 
-<a class="navbar-brand" href="#">
-🏠 Roommate Expense Tracker
-</a>
- 
-</div>
+  <div class="container">
+    <a class="navbar-brand" href="#">🏠 Roommate Expense Tracker</a>
+  </div>
 </nav>
- 
-<div class="container mt-4">
- 
-<div class="row g-3">
- 
-<div class="col-md-3">
-<div class="summary-card blue">
-<h6>Total Expense</h6>
-<h2>₹12,450</h2>
+
+<div class="container py-4">
+  <div class="row g-3">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="summary-card blue">
+        <h6>Total Expense</h6>
+        <h2 id="totalExpense">₹0</h2>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="summary-card green">
+        <h6>Your Spending</h6>
+        <h2 id="yourSpending">₹0</h2>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="summary-card orange">
+        <h6>Members</h6>
+        <h2 id="memberCount">4</h2>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="summary-card purple">
+        <h6>This Month</h6>
+        <h2 id="currentMonth">July</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">Add Expense</div>
+        <div class="card-body">
+          <form id="expenseForm">
+            <div class="mb-3">
+              <label class="form-label">Expense Name</label>
+              <input type="text" id="expenseName" class="form-control" placeholder="Milk" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Amount</label>
+              <input type="number" id="amount" class="form-control" placeholder="250" min="1" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Paid By</label>
+              <select id="paidBy" class="form-select" required>
+                <option value="Rahul">Alankar</option>
+                <option value="Akash">Om</option>
+                <option value="John">Jayesh</option>
+                <option value="Priya">Vishal</option>
+                  <option value="Priya">Dushet</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Category</label>
+              <select id="category" class="form-select" required>
+                <option value="Food">Food</option>
+                <option value="Rent">Rent</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Internet">Internet</option>
+                <option value="Gas">Gas</option>
+                <option value="Water">Water</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Date</label>
+              <input type="date" id="date" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Add Expense</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">Expense History</div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Expense</th>
+                  <th>Amount</th>
+                  <th>Paid By</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-warning">Roommates</div>
+        <div class="card-body">
+          <ul class="list-group" id="roommatesList">
+            <li class="list-group-item">Alankar</li>
+            <li class="list-group-item">Om</li>
+            <li class="list-group-item">Jayesh</li>
+            <li class="list-group-item">Vishal</li>
+              <li class="list-group-item">Dushet</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-danger text-white">Monthly Settlement</div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th>Person</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="settlementBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-</div>
- 
-<div class="col-md-3">
-<div class="summary-card green">
-<h6>Your Spending</h6>
-<h2>₹3,250</h2>
-</div>
-</div>
- 
-<div class="col-md-3">
-<div class="summary-card orange">
-<h6>Members</h6>
-<h2>4</h2>
-</div>
-</div>
- 
-<div class="col-md-3">
-<div class="summary-card purple">
-<h6>This Month</h6>
-<h2>July</h2>
-</div>
-</div>
- 
-</div>
- 
-<div class="row mt-4">
- 
-<div class="col-lg-4">
- 
-<div class="card">
- 
-<div class="card-header bg-primary text-white">
-Add Expense
-</div>
- 
-<div class="card-body">
- 
-<form>
- 
-<div class="mb-3">
- 
-<label class="form-label">
-Expense Name
-</label>
- 
-<input
-type="text"
-class="form-control"
-placeholder="Milk">
- 
-</div>
- 
-<div class="mb-3">
- 
-<label class="form-label">
-Amount
-</label>
- 
-<input
-type="number"
-class="form-control"
-placeholder="250">
- 
-</div>
- 
-<div class="mb-3">
- 
-<label class="form-label">
-Paid By
-</label>
- 
-<select class="form-select">
- 
-<option>Rahul</option>
-<option>Akash</option>
-<option>John</option>
-<option>Priya</option>
- 
-</select>
- 
-</div>
- 
-<div class="mb-3">
- 
-<label class="form-label">
-Category
-</label>
- 
-<select class="form-select">
- 
-<option>Food</option>
-<option>Rent</option>
-<option>Electricity</option>
-<option>Internet</option>
-<option>Gas</option>
-<option>Water</option>
- 
-</select>
- 
-</div>
- 
-<div class="mb-3">
- 
-<label class="form-label">
-Date
-</label>
- 
-<input
-type="date"
-class="form-control">
- 
-</div>
- 
-<button class="btn btn-success w-100">
-Add Expense
-</button>
- 
-</form>
- 
-</div>
- 
-</div>
- 
-</div>
- 
-<div class="col-lg-8">
- 
-<div class="card">
- 
-<div class="card-header bg-success text-white">
-Expense History
-</div>
- 
-<div class="card-body">
- 
-<table class="table table-striped">
- 
-<thead>
- 
-<tr>
- 
-<th>Expense</th>
-<th>Amount</th>
-<th>Paid By</th>
-<th>Category</th>
-<th>Date</th>
- 
-</tr>
- 
-</thead>
- 
-<tbody>
- 
-<tr>
- 
-<td>Milk</td>
-<td>₹60</td>
-<td>Rahul</td>
-<td>Food</td>
-<td>17-Jul</td>
- 
-</tr>
- 
-<tr>
- 
-<td>Internet</td>
-<td>₹999</td>
-<td>Akash</td>
-<td>Internet</td>
-<td>18-Jul</td>
- 
-</tr>
- 
-<tr>
- 
-<td>Electricity</td>
-<td>₹1700</td>
-<td>Priya</td>
-<td>Electricity</td>
-<td>20-Jul</td>
- 
-</tr>
- 
-<tr>
- 
-<td>Gas</td>
-<td>₹1200</td>
-<td>John</td>
-<td>Gas</td>
-<td>25-Jul</td>
- 
-</tr>
- 
-</tbody>
- 
-</table>
- 
-</div>
- 
-</div>
- 
-</div>
- 
-</div>
- 
-<div class="row mt-4">
- 
-<div class="col-md-6">
- 
-<div class="card">
- 
-<div class="card-header bg-warning">
-Roommates
-</div>
- 
-<div class="card-body">
- 
-<ul class="list-group">
- 
-<li class="list-group-item">
-Rahul
-</li>
- 
-<li class="list-group-item">
-Akash
-</li>
- 
-<li class="list-group-item">
-John
-</li>
- 
-<li class="list-group-item">
-Priya
-</li>
- 
-</ul>
- 
-</div>
- 
-</div>
- 
-</div>
- 
-<div class="col-md-6">
- 
-<div class="card">
- 
-<div class="card-header bg-danger text-white">
-Monthly Settlement
-</div>
- 
-<div class="card-body">
- 
-<table class="table">
- 
-<thead>
- 
-<tr>
- 
-<th>Person</th>
-<th>Status</th>
- 
-</tr>
- 
-</thead>
- 
-<tbody>
- 
-<tr>
- 
-<td>Rahul</td>
- 
-<td class="text-success">
-Gets ₹1500
-</td>
- 
-</tr>
- 
-<tr>
- 
-<td>Priya</td>
- 
-<td class="text-success">
-Gets ₹500
-</td>
- 
-</tr>
- 
-<tr>
- 
-<td>Akash</td>
- 
-<td class="text-danger">
-Pays ₹800
-</td>
- 
-</tr>
- 
-<tr>
- 
-<td>John</td>
- 
-<td class="text-danger">
-Pays ₹1200
-</td>
- 
-</tr>
- 
-</tbody>
- 
-</table>
- 
-</div>
- 
-</div>
- 
-</div>
- 
-</div>
- 
-</div>
- 
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
- 
+
+<script>
+  const roommates = ["Alankar", "Om", "Jayesh", "Vishal","Dushet"];
+
+  let expenses = [
+    { name: "Milk", amount: 60, paidBy: "Rahul", category: "Food", date: "2026-07-17" },
+    { name: "Internet", amount: 999, paidBy: "Akash", category: "Internet", date: "2026-07-18" },
+    { name: "Electricity", amount: 1700, paidBy: "Priya", category: "Electricity", date: "2026-07-20" },
+    { name: "Gas", amount: 1200, paidBy: "John", category: "Gas", date: "2026-07-25" }
+  ];
+
+  const expenseForm = document.getElementById("expenseForm");
+  const expenseTableBody = document.getElementById("expenseTableBody");
+  const settlementBody = document.getElementById("settlementBody");
+
+  const totalExpenseEl = document.getElementById("totalExpense");
+  const yourSpendingEl = document.getElementById("yourSpending");
+  const memberCountEl = document.getElementById("memberCount");
+  const currentMonthEl = document.getElementById("currentMonth");
+
+  const expenseNameEl = document.getElementById("expenseName");
+  const amountEl = document.getElementById("amount");
+  const paidByEl = document.getElementById("paidBy");
+  const categoryEl = document.getElementById("category");
+  const dateEl = document.getElementById("date");
+
+  memberCountEl.textContent = roommates.length;
+  currentMonthEl.textContent = new Date().toLocaleString("default", { month: "long" });
+  dateEl.value = new Date().toISOString().split("T")[0];
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  }
+
+  function currency(amount) {
+    return "₹" + Number(amount).toLocaleString("en-IN");
+  }
+
+  function renderExpenses() {
+    expenseTableBody.innerHTML = "";
+
+    expenses.forEach((expense, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${expense.name}</td>
+        <td>${currency(expense.amount)}</td>
+        <td>${expense.paidBy}</td>
+        <td>${expense.category}</td>
+        <td>${formatDate(expense.date)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${index})">
+            Delete
+          </button>
+        </td>
+      `;
+      expenseTableBody.appendChild(row);
+    });
+  }
+
+  function renderSummary() {
+    const total = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
+    totalExpenseEl.textContent = currency(total);
+
+    const yourName = "Rahul";
+    const yourTotal = expenses
+      .filter(exp => exp.paidBy === yourName)
+      .reduce((sum, exp) => sum + Number(exp.amount), 0);
+
+    yourSpendingEl.textContent = currency(yourTotal);
+  }
+
+  function renderSettlement() {
+    const total = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
+    const perPerson = total / roommates.length;
+
+    const paidMap = {};
+    roommates.forEach(name => paidMap[name] = 0);
+    expenses.forEach(exp => {
+      paidMap[exp.paidBy] += Number(exp.amount);
+    });
+
+    settlementBody.innerHTML = "";
+
+    roommates.forEach(name => {
+      const balance = paidMap[name] - perPerson;
+      const isPositive = balance >= 0;
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${name}</td>
+        <td class="${isPositive ? 'text-success' : 'text-danger'}">
+          ${isPositive ? 'Gets ' : 'Pays '}${currency(Math.abs(balance))}
+        </td>
+      `;
+      settlementBody.appendChild(row);
+    });
+  }
+
+  function renderAll() {
+    renderExpenses();
+    renderSummary();
+    renderSettlement();
+  }
+
+  expenseForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const name = expenseNameEl.value.trim();
+    const amount = Number(amountEl.value);
+    const paidBy = paidByEl.value;
+    const category = categoryEl.value;
+    const date = dateEl.value;
+
+    if (!name || !amount || amount <= 0 || !date) {
+      alert("Please fill all fields correctly.");
+      return;
+    }
+
+    expenses.unshift({ name, amount, paidBy, category, date });
+
+    expenseForm.reset();
+    dateEl.value = new Date().toISOString().split("T")[0];
+    expenseNameEl.focus();
+
+    renderAll();
+  });
+
+  function deleteExpense(index) {
+    expenses.splice(index, 1);
+    renderAll();
+  }
+
+  window.deleteExpense = deleteExpense;
+
+  renderAll();
+</script>
+
 </body>
 </html>
- 
